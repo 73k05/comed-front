@@ -66,7 +66,7 @@
 function getDepartment(departmentCode, departmentList) {
     let departmentToReturn = {};
     $.each(departmentList, function (index, department) {
-        if (Number(department._id) === Number(departmentCode)) {
+        if (department._id == departmentCode) {
             departmentToReturn = department;
             return false;
         }
