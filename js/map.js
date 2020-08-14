@@ -13,21 +13,22 @@
         $.getJSON("./resources/depmaps/departements.geojson", function (departmentJson) {
             L.geoJSON(departmentJson, {
                 style: function (feature) {
-                    let departmentAvailability = getDepartment(feature.properties.code, departmentAvailabilityList["departments"]);
+                    let departmentAvailability = getDepartment(feature.properties.code, departmentAvailabilityList);
                     let firstOpenSlot = "";
                     let isBookingOpen = false;
                     if (departmentAvailability) {
                         firstOpenSlot = departmentAvailability["bookingFirstOpenSlotDate"];
+                        if (firstOpenSlot) {
+                            firstOpenSlot = firstOpenSlot.$date;
+                        }
                         isBookingOpen = departmentAvailability["bookingOpen"];
                     }
-                    var todayDate = new Date();
-                    todayDate.setDate(0);
-                    var openSlotDate = Date.parse(firstOpenSlot);
-                    if (openSlotDate >= todayDate && isBookingOpen) {
+                    const todayDate = Date.now();
+                    if (firstOpenSlot >= todayDate && isBookingOpen) {
                         return {color: "#78995D"};
                     }
                     //Booking closed but date open
-                    if (openSlotDate >= todayDate || isBookingOpen) {
+                    if (firstOpenSlot >= todayDate || isBookingOpen) {
                         return {color: "#28499B"};
                     }
                     //Booking closed
@@ -37,11 +38,12 @@
 
             //Bind popup to display name & availability
             function onEachFeature(feature, layer) {
-                const departmentAvailability = getDepartment(feature.properties.code, departmentAvailabilityList["departments"]);
+                const departmentAvailability = getDepartment(feature.properties.code, departmentAvailabilityList);
+                // console.log(departmentAvailability);
                 let popupText = `<p><b> ${feature.properties.nom} (${feature.properties.code})</b><br/>`;
                 let firstOpenSlot = departmentAvailability ? departmentAvailability["bookingFirstOpenSlotDate"] : "";
                 if (firstOpenSlot) {
-                    console.log(firstOpenSlot);
+                    firstOpenSlot = firstOpenSlot.$date;
                     firstOpenSlot = new Date(firstOpenSlot);
                     firstOpenSlot = ((firstOpenSlot.getDate() > 9) ? firstOpenSlot.getDate() : ('0' + firstOpenSlot.getDate())) + '/' + ((firstOpenSlot.getMonth() > 8) ? (firstOpenSlot.getMonth() + 1) : ('0' + (firstOpenSlot.getMonth() + 1))) + '/' + firstOpenSlot.getFullYear();
                 }
@@ -62,11 +64,11 @@
 })();
 
 function getDepartment(departmentCode, departmentList) {
-    var departmentToReturn;
+    let departmentToReturn = {};
     $.each(departmentList, function (index, department) {
-        if (department.departmentCode === departmentCode) {
+        if (Number(department._id) === Number(departmentCode)) {
             departmentToReturn = department;
-            return department
+            return false;
         }
     });
     return departmentToReturn;
