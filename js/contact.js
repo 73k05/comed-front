@@ -14,7 +14,7 @@ function getTemplate() {
 }
 
 function onBookingSuccess() {
-
+    showSuccesMessage();
 }
 
 function getParams(form) {

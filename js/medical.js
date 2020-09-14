@@ -22,6 +22,34 @@ function initEventListener() {
     });
 }
 
+
+// Display Booking Date
+function initBookDatePicker() {
+    // Calculating the actual day date + 6 days ahead
+    let nextWeekDate = new Date();
+    nextWeekDate.setDate(nextWeekDate.getDate() + minimumDelayBook);
+    $("#bookingDatePicker").datepicker({
+        onSelect: function (date) {
+        },
+        format: "dd/mm/yyyy",
+        startDate: nextWeekDate,
+        firstDay: 1,
+    });
+}
+
+function initBirthDatePicker() {
+    // Calculating the actual day date - 18 years behind
+    let minBirthDate = new Date()
+    minBirthDate.setFullYear(new Date().getFullYear() - 18);
+    $("#birthdate").datepicker({
+        onSelect: function (date) {
+        },
+        format: "dd/mm/yyyy",
+        endDate: minBirthDate,
+        firstDay: 1,
+    });
+}
+
 // Email JS init
 (function () {
     emailjs.init("user_okaI2d5BZr9wdrnselFor");
@@ -34,19 +62,17 @@ function sendMail(form) {
         );
         return;
     }
-    
+
     showProgressBar();
 
     emailjs.send("commissionmedicale", getTemplate(), getParams(form)).then(
         function (response) {
-            console.log("SUCCESS!", response.status, response.text);
             hideProgressBar();
-            showSuccesMessage();
             onBookingSuccess(form);
         },
         function (error) {
             enableBookButton(form);
-            console.log("FAILED...", error);
+            console.error("Error mail...", error);
             hideProgressBar();
             showErrorMEssage();
         }

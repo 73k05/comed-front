@@ -39,7 +39,6 @@
             //Bind popup to display name & availability
             function onEachFeature(feature, layer) {
                 const departmentAvailability = getDepartment(feature.properties.code, departmentAvailabilityList);
-                // console.log(departmentAvailability);
                 let popupText = `<p><b> ${feature.properties.nom} (${feature.properties.code})</b><br/>`;
                 let firstOpenSlot = departmentAvailability ? departmentAvailability["bookingFirstOpenSlotDate"] : "";
                 if (firstOpenSlot) {
