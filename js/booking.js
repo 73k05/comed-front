@@ -27,7 +27,7 @@ function addressAutoComplete() {
     });
 }
 
-function onBookingSuccess(form) {
+function addNewBooking(form) {
     $.ajax('https://73k05.xyz:3030/booking/new', {
         data: JSON.stringify(getParams(form)),
         contentType: 'application/json',

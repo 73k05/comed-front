@@ -24,6 +24,7 @@ function getParams(form) {
         bookedCurrentDate: "",
         addressStreet: form.address.value,
         addressZip: form.zip.value,
-        addressCity: form.city.value
+        addressCity: form.city.value,
+        boost: false
     };
 }

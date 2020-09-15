@@ -13,89 +13,134 @@ function getParams(form) {
         email: form.email.value,
         firstname: form.firstname.value,
         lastname: form.lastname.value,
+        phone: "",
         number: Math.random() * 100000 | 0,
+        birthdate: "",
+        birthname: "",
         region: form.region.value,
+        typevisit: "",
         bookingChooseDate: form.bookingdate.value,
         bookedCurrentDate: "",
+        addressStreet: "",
+        addressZip: "",
+        addressCity: "",
+        boost: true
     };
 }
 
 function initStripe() {
-// Create a Stripe client.
-    var stripe = Stripe('pk_live_Qk0OOId1FvqJCPY7WqCGRZjy00ZeFmTASh');
 
-// Create an instance of Elements.
-    var elements = stripe.elements();
+// Calls stripe.confirmCardPayment
+// If the card requires authentication Stripe shows a pop-up modal to
 
-// Custom styling can be passed to options when creating an Element.
-// (Note that this demo uses a wider set of styles than the guide below.)
-    var style = {
-        base: {
-            color: '#32325d',
-            fontFamily: '"Helvetica Neue", Helvetica, sans-serif',
-            fontSmoothing: 'antialiased',
-            fontSize: '16px',
-            '::placeholder': {
-                color: '#aab7c4'
-            }
-        },
-        invalid: {
-            color: '#fa755a',
-            iconColor: '#fa755a'
+    /* ------- UI helpers ------- */
+
+
+// Show a spinner on payment submission
+    const loading = function (isLoading) {
+        if (isLoading) {
+            // Disable the button and show a spinner
+            document.querySelector("button").disabled = true;
+            document.querySelector("#spinner").classList.remove("hidden");
+            document.querySelector("#button-text").classList.add("hidden");
+        } else {
+            document.querySelector("button").disabled = false;
+            document.querySelector("#spinner").classList.add("hidden");
+            document.querySelector("#button-text").classList.remove("hidden");
         }
     };
+// Show the customer the error from Stripe if their card fails to charge
+    const showError = function (errorMsgText) {
+        loading(false);
+        const errorMsg = document.querySelector("#card-error");
+        errorMsg.textContent = errorMsgText;
+        setTimeout(function () {
+            errorMsg.textContent = "";
+        }, 4000);
+    };
+// Shows a success message when the payment is complete
+    const orderComplete = function (paymentIntentId) {
+        loading(false);
+        document
+            .querySelector(".alert-success a")
+            .setAttribute(
+                "href",
+                "https://dashboard.stripe.com/test/payments/" + paymentIntentId
+            );
+        document.querySelector(".alert-success").classList.remove("hidden");
 
-// Create an instance of the card Element.
-    var card = elements.create('card', {style: style});
-
-// Add an instance of the card Element into the `card-element` <div>.
-    card.mount('#card-element');
-
-// Handle real-time validation errors from the card Element.
-    card.on('change', function (event) {
-        var displayError = document.getElementById('card-errors');
-        if (event.error) {
-            displayError.textContent = event.error.message;
-        } else {
-            displayError.textContent = '';
-        }
-    });
-
-// Handle form submission.
-    var form = document.getElementById('payment-form');
-    form.addEventListener('submit', function (event) {
-            preventEvents(event);
-
-            form.classList.add("was-validated");
-            if (form.checkValidity() === false) {
-                return;
-            }
-
-            stripe.createToken(card).then(function (result) {
+        const form = document.getElementById("payment-form");
+        disableBookButton(form);
+        addNewBooking(form);
+    };
+// prompt the user to enter authentication details without leaving your page.
+    const payWithCard = function (stripe, card, clientSecret) {
+        loading(true);
+        stripe
+            .confirmCardPayment(clientSecret, {
+                payment_method: {
+                    card: card
+                }
+            })
+            .then(function (result) {
                 if (result.error) {
-                    // Inform the user if there was an error.
-                    var errorElement = document.getElementById('card-errors');
-                    errorElement.textContent = result.error.message;
+                    // Show error to your customer
+                    showError(result.error.message);
                 } else {
-                    // Send the token to your server.
-                    stripeTokenHandler(result.token);
+                    // The payment succeeded!
+                    orderComplete(result.paymentIntent.id);
                 }
             });
-        },
-        false);
+    };
+// Create a Stripe client.
+    const stripe = Stripe('pk_live_Qk0OOId1FvqJCPY7WqCGRZjy00ZeFmTASh');
 
-// Submit the form with the token ID.
-    function stripeTokenHandler(token) {
-        // Insert the token ID into the form so it gets submitted to the server
-        var form = document.getElementById('payment-form');
-        var hiddenInput = document.createElement('input');
-        hiddenInput.setAttribute('type', 'hidden');
-        hiddenInput.setAttribute('name', 'stripeToken');
-        hiddenInput.setAttribute('value', token.id);
-        form.appendChild(hiddenInput);
+// Disable the button until we have Stripe set up on the page
+    document.querySelector("button").disabled = true;
+    fetch("https://73k05.xyz:3030/booking/create-payment-intent", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        }
+    })
+        .then(function (result) {
+            return result.json();
+        })
+        .then(function (data) {
+            console.log(data);
+            const form = document.getElementById("payment-form");
+            enableBookButton(form);
+            const elements = stripe.elements();
+            const style = {
+                base: {
+                    color: "#32325d",
+                    fontFamily: 'Arial, sans-serif',
+                    fontSmoothing: "antialiased",
+                    fontSize: "16px",
+                    "::placeholder": {}
+                },
+                invalid: {
+                    fontFamily: 'Arial, sans-serif',
+                    color: "#fa755a",
+                }
+            };
+            const card = elements.create("card", {style: style});
+            // Stripe injects an iframe into the DOM
+            card.mount("#card-element");
+            card.on("change", function (event) {
+                // Disable the Pay button if there are no card details in the Element
+                document.querySelector("button").disabled = event.empty;
+                document.querySelector("#card-error").textContent = event.error ? event.error.message : "";
+            });
 
-        // Send mail
-        disableBookButton(form);
-        sendMail(form);
-    }
+            form.addEventListener("submit", function (event) {
+                preventEvents(event);
+                form.classList.add("was-validated");
+                if (form.checkValidity() === false) {
+                    return;
+                }
+                // Complete payment when the submit button is clicked
+                payWithCard(stripe, card, data.clientSecret);
+            });
+        });
 }

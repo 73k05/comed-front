@@ -68,7 +68,7 @@ function sendMail(form) {
     emailjs.send("commissionmedicale", getTemplate(), getParams(form)).then(
         function (response) {
             hideProgressBar();
-            onBookingSuccess(form);
+            addNewBooking(form);
         },
         function (error) {
             enableBookButton(form);
