@@ -23,12 +23,14 @@
                         }
                         isBookingOpen = departmentAvailability["bookingOpen"];
                     }
-                    const todayDate = Date.now();
-                    if (firstOpenSlot >= todayDate && isBookingOpen) {
+                    const todayDate = new Date();
+                    todayDate.setHours(0);
+                    const todayDateTimestamp = todayDate.getTime();
+                    if (firstOpenSlot >= todayDateTimestamp && isBookingOpen) {
                         return {color: "#78995D"};
                     }
                     //Booking closed but date open
-                    if (firstOpenSlot >= todayDate || isBookingOpen) {
+                    if (firstOpenSlot >= todayDateTimestamp || isBookingOpen) {
                         return {color: "#28499B"};
                     }
                     //Booking closed
@@ -65,6 +67,9 @@
 function getDepartment(departmentCode, departmentList) {
     let departmentToReturn = {};
     $.each(departmentList, function (index, department) {
+        if (department._id.length < 2) {
+            department._id = "0" + department._id;
+        }
         if (department._id == departmentCode) {
             departmentToReturn = department;
             return false;
