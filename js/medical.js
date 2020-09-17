@@ -1,6 +1,6 @@
 const minimumDelayBook = 7;
 
-function initEventListener() {
+function initEventListener(isBooking = false) {
     // Fetch all the forms we want to apply custom Bootstrap validation styles to
     var forms = document.getElementsByClassName("needs-validation");
     // Loop over them and prevent submission
@@ -13,7 +13,7 @@ function initEventListener() {
                 } else if (form.checkValidity() === true) {
                     preventEvents(event);
                     disableBookButton(form);
-                    sendMail(form);
+                    sendMail(form, isBooking);
                 }
                 form.classList.add("was-validated");
             },
@@ -55,7 +55,7 @@ function initBirthDatePicker() {
     emailjs.init("user_okaI2d5BZr9wdrnselFor");
 })();
 
-function sendMail(form) {
+function sendMail(form, isBooking) {
     if (form == undefined || !form.checkValidity()) {
         console.error(
             "Error, email empty or wrong or medical rendez-vous already sent"
@@ -68,7 +68,9 @@ function sendMail(form) {
     emailjs.send("commissionmedicale", getTemplate(), getParams(form)).then(
         function (response) {
             hideProgressBar();
-            addNewBooking(form);
+            if (isBooking) {
+                addNewBooking(form);
+            }
         },
         function (error) {
             enableBookButton(form);
