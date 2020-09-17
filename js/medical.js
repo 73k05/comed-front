@@ -70,6 +70,8 @@ function sendMail(form, isBooking) {
             hideProgressBar();
             if (isBooking) {
                 addNewBooking(form);
+            }else{
+                onBookingSuccess();
             }
         },
         function (error) {

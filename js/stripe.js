@@ -71,7 +71,7 @@ function initStripe() {
 
         const form = document.getElementById("payment-form");
         disableBookButton(form);
-        addNewBooking(form);
+        sendMail(form, true);
     };
 // prompt the user to enter authentication details without leaving your page.
     const payWithCard = function (stripe, card, clientSecret) {
@@ -107,7 +107,6 @@ function initStripe() {
             return result.json();
         })
         .then(function (data) {
-            console.log(data);
             const form = document.getElementById("payment-form");
             enableBookButton(form);
             const elements = stripe.elements();

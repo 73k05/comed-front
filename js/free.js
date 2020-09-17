@@ -1,7 +1,7 @@
 (function () {
     'use strict';
     window.addEventListener('load', function () {
-        initEventListener();
+        initEventListener(true);
         populateSelect();
         initBookDatePicker();
         initBirthDatePicker();
