@@ -52,7 +52,7 @@
                         <a class="nav-link" href="./map.html">Carte</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="./free.html">Essai Gratuit</a>
+                        <a class="nav-link" href="./free.html">Réservation Gratuite</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="./contact.html">Contact</a>
@@ -68,7 +68,8 @@
         </h1>
 
         <h2 class="header-comed">
-            Important: CommissionMedicale ne peut pas réserver à votre place. Lisez notre <a href="./faq.html" target="_blank"><b>faq</b></a>
+            Important: CommissionMedicale ne peut pas réserver à votre place. Lisez notre <a href="./faq.html"
+                                                                                             target="_blank"><b>faq</b></a>
         </h2>
 
         <form class="main-form needs-validation" id="payment-form" novalidate>
@@ -118,9 +119,9 @@
                 <p id="card-error" role="alert"></p>
             </div>
             <br>
-            <button class="btn btn-primary" name="bookButton" type="submit" id="submit">
+            <button class="btn btn-primary" id="submit" name="bookButton" type="submit">
                 <div class="spinner hidden" id="spinner"></div>
-                <span id="button-text">Boost 1€</span>
+                <span id="button-text">Réserver Boost 1€</span>
             </button>
         </form>
 
@@ -196,6 +197,23 @@
 
     <!-- Stripe -->
     <script async src="https://js.stripe.com/v3/" type="text/javascript"></script>
+
+    <!-- TrustPilot -->
+    <script>
+        (function (w, d, s, r, n) {
+            w.TrustpilotObject = n;
+            w[n] = w[n] || function () {
+                (w[n].q = w[n].q || []).push(arguments)
+            };
+            a = d.createElement(s);
+            a.async = 1;
+            a.src = r;
+            a.type = 'text/java' + s;
+            f = d.getElementsByTagName(s)[0];
+            f.parentNode.insertBefore(a, f)
+        })(window, document, 'script', 'https://invitejs.trustpilot.com/tp.min.js', 'tp');
+        tp('register', 'd9AgUovAUhmA7vDN');
+    </script>
 </body>
 
 </html>
