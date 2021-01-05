@@ -13,3 +13,6 @@ RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [redirect=301,L]
 RewriteEngine on
 RewriteCond %{HTTP_HOST} ^commissionmedicale.fr [NC]
 RewriteRule ^(.*)$ https://www.commissionmedicale.fr/$1 [L,R=301,NC]
+
+######### 73k05 custom 404 #########
+ErrorDocument 404 /404.html
